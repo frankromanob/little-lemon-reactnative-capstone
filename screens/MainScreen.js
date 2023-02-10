@@ -9,7 +9,6 @@ const MainScreen = ({navigation}) => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Image style={styles.img} source={require("../assets/Logo.png")} />
             </View>
             <View style={styles.body}>
                 <Image style={styles.img1} source={require("../assets/Grilledfish.png")} />
@@ -93,7 +92,7 @@ const styles = {
         color: '#333333',
         justifyContent: 'center',
         alignItems: 'center',
-        alignSelft: 'center',
+        alignSelf: 'center',
         fontSize: 24,
         fontWeight: 'bold',
     },

@@ -18,8 +18,8 @@ const styles = {
         justifyContent: 'center',
     },
     img: {
-        height: '60%',
-        width: '100%',
+        height: '40%',
+        width: '80%',
         alignItems: 'center',
         justifyContent: 'center',
 

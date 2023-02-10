@@ -5,42 +5,53 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const OnboardingScreen = ({navigation}) => {
-    const [firstName, setFirstName] = useState('');
-    const [email, setEmail] = useState('');
+    const [profileState, setProfileState] = useState({
+        pic:'',
+        firstName:'',
+        lastName:'',
+        email:'',
+        phone:'',
+        orderNoti: false,
+        passwordNoti: false,
+        offersNoti: false,
+        newsNoti: false
+    });
 
-    _storeData = async () => {
+    saveData = async () => {
         try {
-          await AsyncStorage.setItem('userName',firstName);
-          await AsyncStorage.setItem('userEmail',email);
+          console.log(JSON.stringify(profileState));
+          await AsyncStorage.setItem('userProfile',JSON.stringify(profileState));
         } catch (error) {
-          // Error saving data
+          console.log(error);
         }
       };
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <Image style={styles.img} source={require("../assets/Logo.png")} />
-            </View>
             <View style={styles.formContainer}>
                 <Text style={styles.msgtext}>Let us get to know you</Text>
                 <TextInput
                     style={styles.input}
                     placeholder="First Name"
-                    onChangeText={(text) => setFirstName(text)}
-                    value={firstName}
+                    onChangeText={(text) => setProfileState({...profileState,firstName:text})}
+                    value={profileState.firstName}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Last Name"
+                    onChangeText={(text) => setProfileState({...profileState,lastName:text})}
+                    value={profileState.lastName}
                 />
                 <TextInput
                     style={styles.input}
                     placeholder="Email"
-                    onChangeText={(text) => setEmail(text)}
-                    value={email}
+                    onChangeText={(text) => setProfileState({...profileState,email:text})}
+                    value={profileState.email}
                 />
-                <TouchableOpacity disabled={!email || !firstName} style={styles.button} onPress={() => {
-                    _storeData();
-                    navigation.navigate('Main')}}
-                >
-                    <Text style={styles.buttonText}>Next</Text>
+                <TouchableOpacity disabled={!profileState.email || !profileState.firstName || !profileState.lastName} style={styles.button} onPress={() => {
+                    saveData();
+                    navigation.navigate('Main')}}>
+                    <Text style={styles.buttonText}>Save</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -62,13 +73,6 @@ const styles = {
         justifyContent: 'center',
         margintop: 10,
         backgroundColor:'#EDEFEE'
-    },
-    img: {
-        height: 50,
-        width: 250,
-        alignItems: 'center',
-        justifyContent: 'center',
-
     },
     formContainer: {
         flex: 0.9,
@@ -101,9 +105,8 @@ const styles = {
     },
     msgtext: {
         color: '#333333',
-        justifyContent: 'center',
         alignItems: 'center',
-        alignSelft: 'center',
+        alignSelf: 'center',
         fontSize: 24,
         fontWeight: 'bold',
     },
