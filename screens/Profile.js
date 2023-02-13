@@ -1,11 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Text, TextInput, TouchableOpacity, View, Image, ToastAndroid } from "react-native";
+import { Text, TextInput, Image, TouchableOpacity, View, ToastAndroid } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CheckBox from 'expo-checkbox';
 import { MaskedTextInput } from "react-native-mask-text";
-
+import { useFonts } from 'expo-font';
+import * as ImagePicker from 'expo-image-picker';
 
 const ProfileScreen = ({ navigation }) => {
+
+    const [image, setImage] = useState(null);
+
+    const pickImage = async () => {
+        // No permissions request is necessary for launching the image library
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+
+       // console.log(result);
+        if (!result.canceled) {
+            setImage(result.assets[0].uri);
+            setProfileState({ ...profileState, pic: result.assets[0].uri })
+        }
+    };
 
     const [profileState, setProfileState] = useState({
         pic: '',
@@ -35,7 +54,7 @@ const ProfileScreen = ({ navigation }) => {
         news: false,
     }
 
-    clearData = async (userProfile) => {
+    clearData = async () => {
         try {
             await AsyncStorage.removeItem('userProfile');
         } catch (error) {
@@ -46,9 +65,9 @@ const ProfileScreen = ({ navigation }) => {
     retrieveData = async () => {
         try {
             const jsonProfile = await AsyncStorage.getItem('userProfile');
-            console.log(jsonProfile);
-            if (userProfile !== null) {
-                setProfileState(JSON.parse(jsonProfile));
+            const jsonValue= JSON.parse(jsonProfile);
+            if (jsonValue !== null) {
+                setProfileState(jsonValue);
             }
         } catch (error) {
             console.log(error)
@@ -58,18 +77,46 @@ const ProfileScreen = ({ navigation }) => {
 
     saveData = async () => {
         try {
-            await AsyncStorage.setItem('userProfile',JSON.stringify(profileState));
+            await AsyncStorage.setItem('userProfile', JSON.stringify(profileState));
         } catch (error) {
             console.log(error)
-            // Error savin data
+            // Error saving data
         }
     };
 
+    const [loaded] = useFonts({
+        Karla: require('../assets/fonts/Karla-Regular.ttf'),
+        Markazi: require('../assets/fonts/MarkaziText-Regular.ttf'),
+    });
+
+    if (!loaded) {
+        return null;
+    }
+
+
     return (
         <View style={styles.container}>
-            <Text style={styles.msgtext}>Personal information</Text>
             <View>
-                <Image style={{ width: 90, height: 90, borderRadius: 50, justifyContent: 'center' }} source={require("../assets/Profile.png")} />
+                <Text style={styles.msgtext}>Personal information</Text>
+            </View>
+            <View style={styles.top}>
+                <View style={{flexDirection:'column', alignSelf:'center'}}>
+                <Text style={{alignSelf:'center',marginRight:20}}>Avatar</Text> 
+                    {profileState.pic ? <Image source={{ uri: profileState.pic }} resizeMode='contain' style={{marginRight:20,alignSelf: 'center', justifyContent: 'center', width: 90, height: 90, borderRadius: 50 }} /> :
+                        <Image
+                            style={{ marginRight:20, width: 90, height: 90, borderRadius: 50, alignSelf: 'center', justifyContent: 'center' }}
+                            source={require('../assets/profileicon.png')}
+                            resizeMode='contain' />
+                    }
+                    </View>
+                    <View style={styles.avatar}>
+                    <TouchableOpacity style={styles.buttongtop} title="Change avatar" onPress={pickImage}>
+                        <Text style={styles.buttonTextw}>Change</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.buttonwtop} title="Remove avatar" onPress={() => { setProfileState({ ...profileState, pic: false }); }}>
+                        <Text style={styles.buttonText}>Remove</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
 
             <View style={styles.fields}>
@@ -109,7 +156,7 @@ const ProfileScreen = ({ navigation }) => {
                 <Text style={styles.labels} >Order status</Text>
             </View>
             <View style={styles.noti}>
-                <CheckBox 
+                <CheckBox
                     value={profileState.passwordNoti}
                     onValueChange={(newValue) => setProfileState({ ...profileState, passwordNoti: newValue })}
                     color={profileState.passwordNoti ? '#495E57' : '#333333'}
@@ -117,7 +164,7 @@ const ProfileScreen = ({ navigation }) => {
                 <Text style={styles.labels} >Password changes</Text>
             </View>
             <View style={styles.noti}>
-                <CheckBox 
+                <CheckBox
                     value={profileState.offersNoti}
                     onValueChange={(newValue) => setProfileState({ ...profileState, offersNoti: newValue })}
                     color={profileState.offersNoti ? '#495E57' : '#333333'}
@@ -132,16 +179,16 @@ const ProfileScreen = ({ navigation }) => {
                 />
                 <Text style={styles.labels} >Newsletter</Text>
             </View>
-            <TouchableOpacity style={styles.buttony} title="Hola" onPress={() => { clearData();navigation.navigate('Onboarding') }}>
+            <TouchableOpacity style={styles.buttony} title="Hola" onPress={() => { {clearData()}; setProfileState({}); navigation.popToTop(); }}>
                 <Text style={styles.buttonText}>Log out</Text>
             </TouchableOpacity>
             <View style={styles.footer}>
-                <TouchableOpacity style={styles.buttonw} title="Hola" onPress={() => { navigation.goBack() }}>
+                <TouchableOpacity style={styles.buttonw} title="Discard changes" onPress={() => { navigation.goBack() }}>
                     <Text style={styles.buttonText}>Discard changes</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.buttong} title="Hola" onPress={() => {
-                    saveData();
-                    ToastAndroid.show('Profile saved!',ToastAndroid.CENTER,ToastAndroid.LONG)
+                <TouchableOpacity style={styles.buttong} title="Save changes" onPress={() => {
+                    {saveData()};
+                    ToastAndroid.show('Profile saved!', ToastAndroid.CENTER, ToastAndroid.LONG)
                 }}>
                     <Text style={styles.buttonTextw}>Save changes</Text>
                 </TouchableOpacity>
@@ -167,11 +214,22 @@ const styles = {
     noti: {
         margin: 10,
         flexDirection: 'row',
+        fontFamily: 'Markazi',
     },
     top: {
-        flex: 0.2,
-        height: 60,
+        marginBottom:20,
+        fontFamily: 'Markazi',
+        paddingHorizontal: 30,
+        textAlign:'center',
+        height: 80,
         width: '100%',
+        marginLeft: 10,
+        marginTop: 20,
+        marginRight: 10,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginHorizontal: 20,
+        minWidth:'50%',
     },
     input: {
         width: '100%',
@@ -187,6 +245,7 @@ const styles = {
         fontSize: 14,
         alignSelf: 'flex-start',
         color: '#333333',
+        fontFamily: 'Karla',
     },
     checks: {
         color: '#495E57',
@@ -199,6 +258,16 @@ const styles = {
         justifyContent: 'space-around',
         alignSelf: 'center',
     },
+
+    avatar: {
+        marginRight: 10,
+        paddingTop: 25,
+        paddingBottom: 8,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignSelf:'center'
+    },
+
     buttony: {
         height: 40,
         width: '90%',
@@ -214,6 +283,7 @@ const styles = {
         width: '40%',
         borderRadius: 10,
         borderWidth: 1,
+        marginHorizontal:10,
         backgroundColor: '#495E57',
         alignSelf: 'center',
         alignItems: 'center',
@@ -229,20 +299,45 @@ const styles = {
         alignItems: 'center',
         justifyContent: 'center',
     },
+    buttongtop: {
+        height: 40,
+        width: 100,
+        borderRadius: 10,
+        borderWidth: 1,
+        backgroundColor: '#495E57',
+        alignSelf: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginHorizontal:3,
+    },
+    buttonwtop: {
+        height: 40,
+        width: 100,
+        borderRadius: 10,
+        borderWidth: 1,
+        marginHorizontal:3,
+        backgroundColor: '#EDEFEE',
+        alignSelf: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
 
     buttonText: {
         color: '#333333',
         fontWeight: 'bold',
+        fontFamily: 'Karla',
     },
     buttonTextw: {
         color: '#EDEFEE',
         fontWeight: 'bold',
+        fontFamily: 'Karla',
     },
     msgtext: {
         color: '#333333',
         alignSelf: 'flex-start',
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: 'bold',
+        fontFamily: 'Markazi',
     },
 };
 
