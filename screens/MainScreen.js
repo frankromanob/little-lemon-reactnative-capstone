@@ -28,6 +28,7 @@ const MainScreen = ({ navigation }) => {
 
     const imgUriComplete = (image) => {
         const uricompleta = imgUri1 + image + imgUri2;
+        console.log(uricompleta);
         return (uricompleta)
     }
 
@@ -40,7 +41,7 @@ const MainScreen = ({ navigation }) => {
                         <Text style={styles.titleText1}>Chicago</Text>
                         <Text style={styles.msgtext}>We are a family owned mediterranean restaurant, focused on traditional recipes served with a modern twist.</Text>
                     </View>
-                    <Image style={styles.img} source={require("../assets/Grilledfish.png")} />
+                    <Image style={styles.img} source={require("../assets/grilledFish.jpg")} />
                 </View>
             </View>
             <View style={styles.body}>
@@ -134,7 +135,7 @@ const styles = {
         width:80,
     },
     imgmenu: {
-        flex: 1,
+        flex: .5,
         height: 60,
         width: 30,
         justifyContent: 'center',
