@@ -28,7 +28,6 @@ const MainScreen = ({ navigation }) => {
 
     const imgUriComplete = (image) => {
         const uricompleta = imgUri1 + image + imgUri2;
-        console.log(uricompleta);
         return (uricompleta)
     }
 
@@ -41,22 +40,43 @@ const MainScreen = ({ navigation }) => {
                         <Text style={styles.titleText1}>Chicago</Text>
                         <Text style={styles.msgtext}>We are a family owned mediterranean restaurant, focused on traditional recipes served with a modern twist.</Text>
                     </View>
-                    <Image style={styles.img} source={require("../assets/grilledFish.jpg")} />
+                    <Image style={styles.img} source={require("../assets/hero-image.jpg")} />
+                </View>
+            </View>
+            <View>
+                <Text style={styles.titleTextb}>Order for delivery</Text>
+                <View style={{ flexDirection: 'row', padding:10,margin:5 }}>
+                    <TouchableOpacity style={styles.button} title="Hola" onPress={() => { }}>
+                        <Text style={styles.buttonText}>Starters</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button} title="Hola" onPress={() => {  }}>
+                        <Text style={styles.buttonText}>Mains</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button} title="Hola" onPress={() => {  }}>
+                        <Text style={styles.buttonText}>Desserts</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button} title="Hola" onPress={() => {  }}>
+                        <Text style={styles.buttonText}>Drinks</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
             <View style={styles.body}>
                 <Text style={styles.titleText}>Our Menu</Text>
-                {console.log(menuData.menu)}
                 <FlatList
                     data={menuData.menu}
                     renderItem={({ item }) => (
-                        <View style={{ flexDirection: 'row' }}>
-                            <View style={{ flexDirection: 'column' }}>
+                        <View style={{ flexDirection: 'column' }}>
+                            <View style={{ flexDirection: 'row' }}>
                                 <Text style={styles.titleTextb}>{item.name}</Text>
-                                <Text style={styles.msgtextb}>{item.description}</Text>
-                                <Text style={styles.msgtextb}>{item.price}</Text>
                             </View>
-                            <Image style={styles.imgmenu} source={{ uri: imgUriComplete(item.image) }} />
+                            <View style={{ flexDirection: 'row' }}>
+                                <View style={{ flexDirection: 'column' }}>
+                                    <Text style={styles.msgtextb}>{item.description}</Text>
+                                    <Text style={styles.msgtextb}>{item.price}</Text>
+                                </View>
+                                <Image style={styles.imgmenu} source={{ uri: imgUriComplete(item.image) }} />
+                            </View>
+                            <View style={{borderColor: '#333333', borderWidth: 0.2, opacity:10}} />
                         </View>
                     )}
                     keyExtractor={(item, index) => item.id}
@@ -77,37 +97,37 @@ const styles = {
         justifyContent: 'center',
     },
     header: {
-        flex: .5,
+        flex: .4,
         width: '100%',
         margintop: 10,
         backgroundColor: '#495E57'
     },
     body: {
-        flex: 0.7,
+        flex: 0.6,
         width: '100%',
         justifyContent: 'space-around',
         margintop: 10,
-        backgroundColor: '#EE9972'
+        backgroundColor: '#EDEFEE'
     },
     img: {
-        flex: 1,
-        height: '90%',
+        flex: 0.5,
+        height: 180,
         justifyContent: 'center',
         marginRight: 20,
         marginBottom: 20,
-        borderRadius: 50,
+        borderRadius: 20,
     },
 
     button: {
-        height: 40,
+        height: 30,
         width: 80,
         borderRadius: 10,
         borderWidth: 1,
+        marginHorizontal:5,
         backgroundColor: '#EDEFEE',
         alignSelf: 'flex-end',
         alignItems: 'center',
         justifyContent: 'center',
-        marginVertical: 30
     },
 
     buttonText: {
@@ -130,13 +150,13 @@ const styles = {
         justifyContent: 'flex-start',
         fontSize: 12,
         marginLeft: 20,
-        marginBottom:10,
+        marginBottom: 10,
         fontFamily: 'Karla',
-        width:220,
+        width: 220,
     },
     imgmenu: {
-        flex: .6,
-        height: 150,
+        flex: 0.8,
+        height: 90,
         width: 30,
         justifyContent: 'flex-end',
         marginRight: 5,
