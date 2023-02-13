@@ -85,8 +85,8 @@ const ProfileScreen = ({ navigation }) => {
     };
 
     const [loaded] = useFonts({
-        Karla: require('../assets/fonts/Karla-Regular.ttf'),
-        Markazi: require('../assets/fonts/MarkaziText-Regular.ttf'),
+        'Karla': require('../assets/fonts/Karla-Regular.ttf'),
+        'Markazi': require('../assets/fonts/MarkaziText-Regular.ttf'),
     });
 
     if (!loaded) {
@@ -101,7 +101,7 @@ const ProfileScreen = ({ navigation }) => {
             </View>
             <View style={styles.top}>
                 <View style={{flexDirection:'column', alignSelf:'center'}}>
-                <Text style={{alignSelf:'center',marginRight:20}}>Avatar</Text> 
+                <Text style={{alignSelf:'center',marginRight:20,fontSize:18,fontFamily:'Markazi'}}>Avatar</Text> 
                     {profileState.pic ? <Image source={{ uri: profileState.pic }} resizeMode='contain' style={{marginRight:20,alignSelf: 'center', justifyContent: 'center', width: 90, height: 90, borderRadius: 50 }} /> :
                         <Image
                             style={{ marginRight:20, width: 90, height: 90, borderRadius: 50, alignSelf: 'center', justifyContent: 'center' }}
@@ -214,7 +214,7 @@ const styles = {
     noti: {
         margin: 10,
         flexDirection: 'row',
-        fontFamily: 'Markazi',
+        fontFamily: 'Karla',
     },
     top: {
         marginBottom:20,
@@ -239,13 +239,15 @@ const styles = {
         borderRadius: 10,
         borderColor: '#333333',
         borderWidth: 1,
-        fontSize: 14
+        fontSize: 14,
+        fontFamily:'Karla'
     },
     labels: {
-        fontSize: 14,
+        fontSize: 18,
         alignSelf: 'flex-start',
         color: '#333333',
-        fontFamily: 'Karla',
+        fontFamily: 'Markazi',
+        fontWeight:'Bold'
     },
     checks: {
         color: '#495E57',
@@ -265,7 +267,7 @@ const styles = {
         paddingBottom: 8,
         flexDirection: 'row',
         justifyContent: 'flex-end',
-        alignSelf:'center'
+        alignSelf:'center',
     },
 
     buttony: {
@@ -324,19 +326,19 @@ const styles = {
 
     buttonText: {
         color: '#333333',
-        fontWeight: 'bold',
+        fontWeight: 'Bold',
         fontFamily: 'Karla',
     },
     buttonTextw: {
         color: '#EDEFEE',
-        fontWeight: 'bold',
+        fontWeight: 'Bold',
         fontFamily: 'Karla',
     },
     msgtext: {
         color: '#333333',
         alignSelf: 'flex-start',
         fontSize: 20,
-        fontWeight: 'bold',
+        fontWeight: 'Bold',
         fontFamily: 'Markazi',
     },
 };

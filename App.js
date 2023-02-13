@@ -80,14 +80,15 @@ export default function App() {
       >
         {onboardingReady ? (
           // Onboarding completed, user is signed in
-          <Stack.Screen name="MainScreen" component={MainScreen} />
+          <>
+            <Stack.Screen name="MainScreen" component={MainScreen} />
+            <Stack.Screen name="Profile" component={ProfileScreen} /></>
         ) : (
           // User is NOT signed in
-          <Stack.Screen name="OnboardingScreen" component={OnboardingScreen} />
+          <>
+              <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+              <Stack.Screen name="Profile" component={ProfileScreen} /></>
         )}
-        <Stack.Screen name="Main" component={MainScreen} />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
-        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

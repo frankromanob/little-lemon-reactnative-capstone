@@ -1,21 +1,69 @@
-import React, { useState } from 'react';
-import { Text, TouchableOpacity, View, Image } from "react-native";
+import React, { useState, useEffect } from 'react';
+import { Text, TouchableOpacity, View, Image, FlatList } from "react-native";
+import { useFonts } from 'expo-font';
 
 
-const MainScreen = ({navigation}) => {
-    //const [firstName, setFirstName] = useState('');
-   // const [email, setEmail] = useState('');
+const MainScreen = ({ navigation }) => {
+
+
+    const [menuData, setMenuData] = useState([]);
+
+    useEffect(() => {
+        fetch('https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json')
+            .then((response) => response.json())
+            .then((data) => { setMenuData(data); });
+    }, []);
+
+
+    const [fontsLoaded] = useFonts({
+        'Markazi': require('../assets/fonts/MarkaziText-Medium.ttf'),
+        'Karla': require('../assets/fonts/Karla-Regular.ttf'),
+    });
+
+    if (!fontsLoaded) {
+        return null;
+    }
+    const imgUri1 = 'https://github.com/frankromanob/little-lemon-reactnative-capstone/blob/main/assets/'
+    const imgUri2 = '?raw=true'
+
+    const imgUriComplete = (image) => {
+        const uricompleta = imgUri1 + image + imgUri2;
+        return (uricompleta)
+    }
 
     return (
         <View style={styles.container}>
             <View style={styles.header}>
+                <Text style={styles.titleText}>Little Lemon</Text>
+                <View style={{ flex: 1, flexDirection: 'row' }} >
+                    <View style={{ flex: 1, flexDirection: 'column' }} >
+                        <Text style={styles.titleText1}>Chicago</Text>
+                        <Text style={styles.msgtext}>We are a family owned mediterranean restaurant, focused on traditional recipes served with a modern twist.</Text>
+                    </View>
+                    <Image style={styles.img} source={require("../assets/Grilledfish.png")} />
+                </View>
             </View>
             <View style={styles.body}>
-                <Image style={styles.img1} source={require("../assets/Grilledfish.png")} />
+                <Text style={styles.titleText}>Our Menu</Text>
+                {console.log(menuData.menu)}
+                <FlatList
+                    data={menuData.menu}
+                    renderItem={({ item }) => (
+                        <View style={{ flexDirection: 'row' }}>
+                            <View style={{ flexDirection: 'column' }}>
+                                <Text style={styles.titleTextb}>{item.name}</Text>
+                                <Text style={styles.msgtextb}>{item.description}</Text>
+                                <Text style={styles.msgtextb}>{item.price}</Text>
+                            </View>
+                            <Image style={styles.imgmenu} source={{ uri: imgUriComplete(item.image) }} />
+                        </View>
+                    )}
+                    keyExtractor={(item, index) => item.id}
+                />
             </View>
-           <TouchableOpacity style={styles.button} title="Hola" onPress={() => {navigation.navigate('Profile')}}>
+            <TouchableOpacity style={styles.button} title="Hola" onPress={() => { navigation.navigate('Profile') }}>
                 <Text style={styles.buttonText}>My profile</Text>
-           </TouchableOpacity>
+            </TouchableOpacity>
         </View>
     );
 };
@@ -23,60 +71,37 @@ const MainScreen = ({navigation}) => {
 const styles = {
     container: {
         flex: 1,
-        backgroundColor: '#DDDDDD',
+        backgroundColor: '#EDEFEE',
         alignItems: 'center',
         justifyContent: 'center',
     },
     header: {
-        flex: 0.2,
-        height: 100,
+        flex: .5,
         width: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
         margintop: 10,
-        backgroundColor:'#EDEFEE'
+        backgroundColor: '#495E57'
     },
     body: {
-        flex: 0.8,
-        height: 100,
+        flex: 0.7,
         width: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'space-around',
         margintop: 10,
-        backgroundColor:'#EDEFEE'
+        backgroundColor: '#EE9972'
     },
     img: {
-        height: 50,
-        width: 250,
-        alignItems: 'center',
+        flex: 1,
+        height: '90%',
         justifyContent: 'center',
+        marginRight: 20,
+        marginBottom: 20,
+        borderRadius: 50,
+    },
 
-    },
-    img1: {
-        height: 300,
-        width: "100%",
-        alignItems: 'center',
-        justifyContent: 'center',
-
-    },
-    formContainer: {
-        flex: 0.9,
-        justifyContent: 'center',
-        width: '80%',
-    },
-    input: {
-        height: 40,
-        borderColor: '#333333',
-        borderRadius:10,
-        borderWidth: 1,
-        marginVertical: 10,
-        paddingHorizontal: 10,
-    },
     button: {
         height: 40,
-        width:80,
-        borderRadius:10,
-        borderWidth:1,
+        width: 80,
+        borderRadius: 10,
+        borderWidth: 1,
         backgroundColor: '#EDEFEE',
         alignSelf: 'flex-end',
         alignItems: 'center',
@@ -86,15 +111,58 @@ const styles = {
 
     buttonText: {
         color: '#333333',
-        fontWeight: 'bold',
+        fontWeight: 'Bold',
     },
     msgtext: {
-        color: '#333333',
+        flex: 1,
+        color: '#EDEFEE',
         justifyContent: 'center',
-        alignItems: 'center',
-        alignSelf: 'center',
-        fontSize: 24,
-        fontWeight: 'bold',
+        fontSize: 14,
+        marginLeft: 20,
+        margintop: 5,
+        fontFamily: 'Karla',
+        width: 150,
+    },
+    msgtextb: {
+        flex: 1,
+        color: '#333333',
+        justifyContent: 'space-between',
+        fontSize: 12,
+        marginLeft: 20,
+        marginBottom:10,
+        fontFamily: 'Karla',
+        width:80,
+    },
+    imgmenu: {
+        flex: 1,
+        height: 60,
+        width: 30,
+        justifyContent: 'center',
+        marginRight: 5,
+        marginBottom: 5,
+        borderRadius: 5,
+    },
+    titleText: {
+        fontFamily: 'Markazi',
+        color: '#F4CE14',
+        justifyContent: 'flex-start',
+        marginLeft: 10,
+        fontSize: 42,
+        fontWeight: 'Bold',
+    },
+    titleText1: {
+        color: '#EDEFEE',
+        justifyContent: 'flex-start',
+        marginLeft: 10,
+        fontSize: 30,
+        fontFamily: 'Markazi'
+    },
+    titleTextb: {
+        color: '#333333',
+        justifyContent: 'flex-start',
+        marginLeft: 10,
+        fontSize: 26,
+        fontFamily: 'Markazi'
     },
 };
 
