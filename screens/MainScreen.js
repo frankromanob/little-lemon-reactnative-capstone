@@ -32,7 +32,7 @@ const MainScreen = ({ navigation }) => {
                 .then((response) => response.json())
                 .then((data) => { setMenuData(data); });
             db.transaction((tx) => {
-                tx.executeSql('insert into menu values (?); ', [menuData], (txObj, _array) => console.log('insert',_array),(txObj, error) => console.log('Error', error))
+                tx.executeSql('insert into menu values (?); ', [menuData], (txObj, { rows: { _array } }) => {console.log('insert---',_array)},(txObj, error) => console.log('Error', error))
             })
             console.log('[---after_insert---]:',menuData);
         }
