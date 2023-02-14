@@ -50,7 +50,7 @@ const OnboardingScreen = ({navigation}) => {
                 />
                 <TouchableOpacity disabled={!profileState.email || !profileState.firstName || !profileState.lastName} style={styles.button} onPress={() => {
                     saveData();
-                    navigation.navigate('Main')}}>
+                    navigation.navigate('Profile')}}>
                     <Text style={styles.buttonText}>Save</Text>
                 </TouchableOpacity>
             </View>

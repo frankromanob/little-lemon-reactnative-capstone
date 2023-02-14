@@ -1,17 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { Text, TouchableOpacity, View, Image, FlatList } from "react-native";
 import { useFonts } from 'expo-font';
+import * as SQLite from 'expo-sqlite';
 
+const db = SQLite.openDatabase('little_lemon');
+db.transaction(tx => {
+     tx.executeSql('CREATE TABLE IF NOT EXISTS menu('
+         + 'name TEXT, '
+         + 'price REAL, '
+         + 'description TEXT, '
+         + 'category TEXT, '
+         + 'image TEXT ); ', [], (txObj, { rows: { _array } }) => { console.log("--create--:",_array) },(txObj, error) => console.log('Error', error)
+     )
+ })
+ console.log(db);
 
 const MainScreen = ({ navigation }) => {
-
 
     const [menuData, setMenuData] = useState([]);
 
     useEffect(() => {
-        fetch('https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json')
-            .then((response) => response.json())
-            .then((data) => { setMenuData(data); });
+
+        console.log('[---before_sqlite---]:',menuData);
+        db.transaction((tx) => {
+            tx.executeSql('select * from menu; ', [], (txObj, { rows: { _array } }) => {console.log('select---',_array);setMenuData(_array) },(txObj, error) => console.log('Error', error))
+        })
+
+        console.log('[---after_sqlite---]:',menuData);
+        if (menuData.length === 0) {
+            fetch('https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json')
+                .then((response) => response.json())
+                .then((data) => { setMenuData(data); });
+            db.transaction((tx) => {
+                tx.executeSql('insert into menu values (?); ', [menuData], (txObj, _array) => console.log('insert',_array),(txObj, error) => console.log('Error', error))
+            })
+            console.log('[---after_insert---]:',menuData);
+        }
     }, []);
 
 
@@ -23,13 +47,7 @@ const MainScreen = ({ navigation }) => {
     if (!fontsLoaded) {
         return null;
     }
-    const imgUri1 = 'https://github.com/frankromanob/little-lemon-reactnative-capstone/blob/main/assets/'
-    const imgUri2 = '?raw=true'
 
-    const imgUriComplete = (image) => {
-        const uricompleta = imgUri1 + image + imgUri2;
-        return (uricompleta)
-    }
 
     return (
         <View style={styles.container}>
@@ -45,17 +63,17 @@ const MainScreen = ({ navigation }) => {
             </View>
             <View>
                 <Text style={styles.titleTextb}>Order for delivery</Text>
-                <View style={{ flexDirection: 'row', padding:10,margin:5 }}>
+                <View style={{ flexDirection: 'row', padding: 10, margin: 5 }}>
                     <TouchableOpacity style={styles.button} title="Hola" onPress={() => { }}>
                         <Text style={styles.buttonText}>Starters</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} title="Hola" onPress={() => {  }}>
+                    <TouchableOpacity style={styles.button} title="Hola" onPress={() => { }}>
                         <Text style={styles.buttonText}>Mains</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} title="Hola" onPress={() => {  }}>
+                    <TouchableOpacity style={styles.button} title="Hola" onPress={() => { }}>
                         <Text style={styles.buttonText}>Desserts</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} title="Hola" onPress={() => {  }}>
+                    <TouchableOpacity style={styles.button} title="Hola" onPress={() => { }}>
                         <Text style={styles.buttonText}>Drinks</Text>
                     </TouchableOpacity>
                 </View>
@@ -74,12 +92,15 @@ const MainScreen = ({ navigation }) => {
                                     <Text style={styles.msgtextb}>{item.description}</Text>
                                     <Text style={styles.msgtextb}>{item.price}</Text>
                                 </View>
-                                <Image style={styles.imgmenu} source={{ uri: imgUriComplete(item.image) }} />
+                                <Image style={styles.imgmenu} source={{
+                                    uri: `https://github.com/frankromanob/little-lemon-reactnative-capstone/blob/main/assets/${item.image}?raw=true`
+                                }}
+                                />
                             </View>
-                            <View style={{borderColor: '#333333', borderWidth: 0.2, opacity:10}} />
+                            <View style={{ borderColor: '#333333', borderWidth: 0.2, }} />
                         </View>
                     )}
-                    keyExtractor={(item, index) => item.id}
+                    keyExtractor={(item) => item.name}
                 />
             </View>
             <TouchableOpacity style={styles.button} title="Hola" onPress={() => { navigation.navigate('Profile') }}>
@@ -123,7 +144,7 @@ const styles = {
         width: 80,
         borderRadius: 10,
         borderWidth: 1,
-        marginHorizontal:5,
+        marginHorizontal: 5,
         backgroundColor: '#EDEFEE',
         alignSelf: 'flex-end',
         alignItems: 'center',

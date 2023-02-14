@@ -215,6 +215,7 @@ const styles = {
         margin: 10,
         flexDirection: 'row',
         fontFamily: 'Karla',
+        marginHorizontal:10
     },
     top: {
         marginBottom:20,
@@ -247,7 +248,8 @@ const styles = {
         alignSelf: 'flex-start',
         color: '#333333',
         fontFamily: 'Markazi',
-        fontWeight:'Bold'
+        fontWeight:'Bold',
+        paddingHorizontal:5
     },
     checks: {
         color: '#495E57',
@@ -337,9 +339,10 @@ const styles = {
     msgtext: {
         color: '#333333',
         alignSelf: 'flex-start',
-        fontSize: 20,
+        fontSize: 24,
         fontWeight: 'Bold',
         fontFamily: 'Markazi',
+        paddingHorizontal:10
     },
 };
 

@@ -89,6 +89,7 @@ export default function App() {
               <Stack.Screen name="Onboarding" component={OnboardingScreen} />
               <Stack.Screen name="Profile" component={ProfileScreen} /></>
         )}
+        <Stack.Screen name="OnboardingScreen" component={OnboardingScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
