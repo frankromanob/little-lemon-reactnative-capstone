@@ -1,40 +1,65 @@
 import React, { useState, useEffect } from 'react';
-import { Text, TouchableOpacity, View, Image, FlatList } from "react-native";
+import { TextInput, Text, TouchableOpacity, View, Image, FlatList, ToastAndroid } from "react-native";
 import { useFonts } from 'expo-font';
 import * as SQLite from 'expo-sqlite';
 
 const db = SQLite.openDatabase('little_lemon');
-db.transaction(tx => {
-     tx.executeSql('CREATE TABLE IF NOT EXISTS menu('
-         + 'name TEXT, '
-         + 'price REAL, '
-         + 'description TEXT, '
-         + 'category TEXT, '
-         + 'image TEXT ); ', [], (txObj, { rows: { _array } }) => { console.log("--create--:",_array) },(txObj, error) => console.log('Error', error)
-     )
- })
- console.log(db);
+
 
 const MainScreen = ({ navigation }) => {
 
-    const [menuData, setMenuData] = useState([]);
+    const [menuData, setMenuData] = useState({ menu: [] });
+
+    const [buscar, setBuscar] = useState('');
+
+    const fetchMenu = () => {
+        db.transaction(tx => {
+            tx.executeSql('CREATE TABLE IF NOT EXISTS menu('
+                + 'name TEXT, '
+                + 'price REAL, '
+                + 'description TEXT, '
+                + 'category TEXT, '
+                + 'image TEXT ); ');
+            tx.executeSql('SELECT * FROM menu;', [], (tx, { rows: { _array } }) => {
+                setMenuData({ menu: _array });
+            });
+        });
+    }
+
+    const fetchMenuJ = async () => {
+        const response = await fetch('https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json')
+        const dataM = await response.json()
+        setMenuData({ menu: dataM.menu })
+        //Then insert json data on local db
+        insertMenu(dataM.menu)
+    };
+
+    const insertMenu = (props) => {
+        console.log('[---insertando del json---]:', props.length)
+        db.transaction((tx) => {
+            for (let i = 0; i < props.length; i++) {
+                tx.executeSql('insert into menu (name,price,description,category,image) values (?,?,?,?,?)', [props[i].name,
+                props[i].price,
+                props[i].description,
+                props[i].category,
+                props[i].image],
+                    (tx, results) => { },
+                    error => { console.log(error) }
+                    ,);
+            }
+        })
+    }
+
 
     useEffect(() => {
+        //select data from local db
+        fetchMenu()
+        //console.log('---data from db---',menuData);
 
-        console.log('[---before_sqlite---]:',menuData);
-        db.transaction((tx) => {
-            tx.executeSql('select * from menu; ', [], (txObj, { rows: { _array } }) => {console.log('select---',_array);setMenuData(_array) },(txObj, error) => console.log('Error', error))
-        })
-
-        console.log('[---after_sqlite---]:',menuData);
-        if (menuData.length === 0) {
-            fetch('https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json')
-                .then((response) => response.json())
-                .then((data) => { setMenuData(data); });
-            db.transaction((tx) => {
-                tx.executeSql('insert into menu values (?); ', [menuData], (txObj, { rows: { _array } }) => {console.log('insert---',_array)},(txObj, error) => console.log('Error', error))
-            })
-            console.log('[---after_insert---]:',menuData);
+        //If no local data from db, fetch from json
+        if (menuData.menu.length === 0) {
+            fetchMenuJ();
+            //console.log('---data from json---',menuData)
         }
     }, []);
 
@@ -48,18 +73,45 @@ const MainScreen = ({ navigation }) => {
         return null;
     }
 
+    /////---------for testing----
+
+
+
+    const dropTable = () => {
+        db.transaction((tx) => {
+            tx.executeSql('DROP TABLE IF EXISTS menu', [])
+        })
+        console.log('----dropped the table----');
+    }
+    /////////-------
+
+
+    if (menuData.length === 0) {
+        ToastAndroid.show('No menu data', ToastAndroid.TOP, ToastAndroid.LONG);
+        console.log('No menu data')
+        return null;
+    }
 
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.titleText}>Little Lemon</Text>
-                <View style={{ flex: 1, flexDirection: 'row' }} >
-                    <View style={{ flex: 1, flexDirection: 'column' }} >
-                        <Text style={styles.titleText1}>Chicago</Text>
-                        <Text style={styles.msgtext}>We are a family owned mediterranean restaurant, focused on traditional recipes served with a modern twist.</Text>
+                    <Text style={styles.titleText}>Little Lemon</Text>
+                    <View style={{ flex: 1, flexDirection: 'row' }} >
+                        <View style={{ flex: 1, flexDirection: 'column' }} >
+                            <Text style={styles.titleText1}>Chicago</Text>
+                            <Text style={styles.msgtext}>We are a family owned mediterranean restaurant, focused on traditional recipes served with a modern twist.</Text>
+                        </View>
+                        <Image style={styles.img} source={require("../assets/hero-image.jpg")} />
                     </View>
-                    <Image style={styles.img} source={require("../assets/hero-image.jpg")} />
-                </View>
+                    <TextInput
+                        style={{ width: 180, backgroundColor: 'white', borderRadius: 20, fontFamily: 'Karla', marginHorizontal: 20,marginBottom:10,paddingLeft:10 }}
+                        placeholder="Search"
+                        onChangeText={(text) => {
+                            setBuscar({ ...buscar, text })
+                           // menuData.menu.filter({name:buscar})
+                        }}
+                        value={buscar}
+                    />
             </View>
             <View>
                 <Text style={styles.titleTextb}>Order for delivery</Text>
@@ -100,12 +152,17 @@ const MainScreen = ({ navigation }) => {
                             <View style={{ borderColor: '#333333', borderWidth: 0.2, }} />
                         </View>
                     )}
-                    keyExtractor={(item) => item.name}
+                    keyExtractor={(item, index) => item.name + index}
                 />
             </View>
-            <TouchableOpacity style={styles.button} title="Hola" onPress={() => { navigation.navigate('Profile') }}>
-                <Text style={styles.buttonText}>My profile</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row' }}>
+                <TouchableOpacity style={styles.button} title="Hola" onPress={() => { dropTable() }}>
+                    <Text style={styles.buttonText}>Drop menu</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} title="Hola" onPress={() => { insertMenu() }}>
+                    <Text style={styles.buttonText}>Save Menu</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };
