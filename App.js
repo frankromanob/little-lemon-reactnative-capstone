@@ -87,6 +87,7 @@ export default function App() {
           // User is NOT signed in
           <>
               <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+              <Stack.Screen name="MainScreen" component={MainScreen} />
               <Stack.Screen name="Profile" component={ProfileScreen} /></>
         )}
         <Stack.Screen name="OnboardingScreen" component={OnboardingScreen} />

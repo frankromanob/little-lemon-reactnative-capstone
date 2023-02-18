@@ -11,19 +11,28 @@ const MainScreen = ({ navigation }) => {
     const [menuData, setMenuData] = useState({ menu: [] });
 
     const [buscar, setBuscar] = useState('');
+    const [startersflag, setStartersflag] = useState(false);
+    const [mainsflag, setMainsflag] = useState(false);
+    const [dessertsflag, setDessertsflag] = useState(false);
+    const [drinksflag, setDrinksflag] = useState(false);
+
 
     const fetchMenu = () => {
-        db.transaction(tx => {
-            tx.executeSql('CREATE TABLE IF NOT EXISTS menu('
-                + 'name TEXT, '
-                + 'price REAL, '
-                + 'description TEXT, '
-                + 'category TEXT, '
-                + 'image TEXT ); ');
-            tx.executeSql('SELECT * FROM menu;', [], (tx, { rows: { _array } }) => {
-                setMenuData({ menu: _array });
+
+        return new Promise((resolve, reject) => {
+            db.transaction(tx => {
+                tx.executeSql('CREATE TABLE IF NOT EXISTS menu('
+                    + 'name TEXT, '
+                    + 'price REAL, '
+                    + 'description TEXT, '
+                    + 'category TEXT, '
+                    + 'image TEXT ); ');
+                tx.executeSql('SELECT * FROM menu;', [], (tx, { rows: { _array } }) => {
+                    setMenuData({ menu: _array });
+                    resolve(_array.length)
+                });
             });
-        });
+        })
     }
 
     const fetchMenuJ = async () => {
@@ -43,7 +52,7 @@ const MainScreen = ({ navigation }) => {
                 props[i].description,
                 props[i].category,
                 props[i].image],
-                    (tx, results) => { },
+                    (tx, results) => { console.log('Inserted:', results.rowsAffected) },
                     error => { console.log(error) }
                     ,);
             }
@@ -53,14 +62,14 @@ const MainScreen = ({ navigation }) => {
 
     useEffect(() => {
         //select data from local db
-        fetchMenu()
-        //console.log('---data from db---',menuData);
+        (async () => {
+            //  If no local data from db, fetch from json
+            if (await fetchMenu() === 0) {
+                fetchMenuJ();
+            }
+        })()
 
-        //If no local data from db, fetch from json
-        if (menuData.menu.length === 0) {
-            fetchMenuJ();
-            //console.log('---data from json---',menuData)
-        }
+
     }, []);
 
 
@@ -74,8 +83,6 @@ const MainScreen = ({ navigation }) => {
     }
 
     /////---------for testing----
-
-
 
     const dropTable = () => {
         db.transaction((tx) => {
@@ -92,44 +99,72 @@ const MainScreen = ({ navigation }) => {
         return null;
     }
 
+    const searchMenu = (props) => {
+        let queryflags = '';
+        if (startersflag) { queryflags += 'starters,' }
+        db.transaction(tx => {
+            tx.executeSql('SELECT * FROM menu WHERE name like (?)',
+                ['%' + props + '%'], (tx, { rows: { _array } }) => {
+                    setMenuData({ menu: _array });
+                }, error => { console.log(error) });
+        });
+    }
+
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                    <Text style={styles.titleText}>Little Lemon</Text>
-                    <View style={{ flex: 1, flexDirection: 'row' }} >
-                        <View style={{ flex: 1, flexDirection: 'column' }} >
-                            <Text style={styles.titleText1}>Chicago</Text>
-                            <Text style={styles.msgtext}>We are a family owned mediterranean restaurant, focused on traditional recipes served with a modern twist.</Text>
-                        </View>
-                        <Image style={styles.img} source={require("../assets/hero-image.jpg")} />
+                <Text style={styles.titleText}>Little Lemon</Text>
+                <View style={{ flexDirection: 'row' }} >
+                    <View style={{ flex: 1, flexDirection: 'column' }} >
+                        <Text style={styles.titleText1}>Chicago</Text>
+                        <Text style={styles.msgtext}>We are a family owned mediterranean restaurant, focused on traditional recipes served with a modern twist.</Text>
                     </View>
+                    <Image style={styles.img} source={require("../assets/hero-image.jpg")} />
+                </View>
+                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff', borderWidth: 0.5, borderColor: '#000', height: 30, borderRadius: 15, margin: 10, }}>
+                    <Image style={{ resizeMode: 'stretch', alignItems: 'center', width: 20, height: 20, padding: 10, margin: 5 }} source={require("../assets/search-icon.png")} />
                     <TextInput
-                        style={{ width: 180, backgroundColor: 'white', borderRadius: 20, fontFamily: 'Karla', marginHorizontal: 20,marginBottom:10,paddingLeft:10 }}
-                        placeholder="Search"
+                        style={{ justifyContent: 'center', color: 'black', flex: 1, width: 180, backgroundColor: 'white', borderRadius: 20, fontFamily: 'Karla', marginHorizontal: 10, }}
+                        placeholder="Search..."
                         onChangeText={(text) => {
                             setBuscar({ ...buscar, text })
-                           // menuData.menu.filter({name:buscar})
+                            searchMenu(text)
                         }}
                         value={buscar}
                     />
-            </View>
-            <View>
-                <Text style={styles.titleTextb}>Order for delivery</Text>
-                <View style={{ flexDirection: 'row', padding: 10, margin: 5 }}>
-                    <TouchableOpacity style={styles.button} title="Hola" onPress={() => { }}>
-                        <Text style={styles.buttonText}>Starters</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} title="Hola" onPress={() => { }}>
-                        <Text style={styles.buttonText}>Mains</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} title="Hola" onPress={() => { }}>
-                        <Text style={styles.buttonText}>Desserts</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} title="Hola" onPress={() => { }}>
-                        <Text style={styles.buttonText}>Drinks</Text>
-                    </TouchableOpacity>
                 </View>
             </View>
+            <View style={{ flexDirection: 'row', padding: 5 }}>
+                    <TouchableOpacity style={!startersflag ? styles.button : styles.buttonPressed}
+                        onPress={() => {
+                            setStartersflag(!startersflag)
+                            searchMenu(buscar)
+                        }}>
+                        <Text style={!startersflag ? styles.buttonText : styles.buttonTextPressed}>Starters</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={!mainsflag ? styles.button : styles.buttonPressed} 
+                        onPress={() => {
+                            setMainsflag(!mainsflag)
+                            searchMenu(buscar)
+                        }}>
+                        <Text style={!mainsflag ? styles.buttonText : styles.buttonTextPressed}>Mains</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={!dessertsflag ? styles.button : styles.buttonPressed} 
+                        onPress={() => {
+                            setDessertsflag(!dessertsflag)
+                            searchMenu(buscar)
+                        }}>
+                        <Text style={!dessertsflag ? styles.buttonText : styles.buttonTextPressed}>Desserts</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={!drinksflag ? styles.button : styles.buttonPressed} 
+                        onPress={() => {
+                            setDrinksflag(!drinksflag)
+                            searchMenu(buscar)
+                        }}>
+                        <Text style={!drinksflag ? styles.buttonText : styles.buttonTextPressed}>Drinks</Text>
+                    </TouchableOpacity>
+                </View>
             <View style={styles.body}>
                 <Text style={styles.titleText}>Our Menu</Text>
                 <FlatList
@@ -155,14 +190,6 @@ const MainScreen = ({ navigation }) => {
                     keyExtractor={(item, index) => item.name + index}
                 />
             </View>
-            <View style={{ flexDirection: 'row' }}>
-                <TouchableOpacity style={styles.button} title="Hola" onPress={() => { dropTable() }}>
-                    <Text style={styles.buttonText}>Drop menu</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} title="Hola" onPress={() => { insertMenu() }}>
-                    <Text style={styles.buttonText}>Save Menu</Text>
-                </TouchableOpacity>
-            </View>
         </View>
     );
 };
@@ -175,24 +202,22 @@ const styles = {
         justifyContent: 'center',
     },
     header: {
-        flex: .4,
+        flex:0.8,
         width: '100%',
-        margintop: 10,
+        margintop: 5,
         backgroundColor: '#495E57'
     },
     body: {
-        flex: 0.6,
+        flex:1,
         width: '100%',
-        justifyContent: 'space-around',
-        margintop: 10,
         backgroundColor: '#EDEFEE'
     },
     img: {
         flex: 0.5,
-        height: 180,
+        height: 170,
         justifyContent: 'center',
         marginRight: 20,
-        marginBottom: 20,
+        marginBottom: 5,
         borderRadius: 20,
     },
 
@@ -207,9 +232,24 @@ const styles = {
         alignItems: 'center',
         justifyContent: 'center',
     },
+    buttonPressed: {
+        height: 30,
+        width: 80,
+        borderRadius: 10,
+        borderWidth: 1,
+        marginHorizontal: 5,
+        backgroundColor: '#495E57',
+        alignSelf: 'flex-end',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
 
     buttonText: {
         color: '#333333',
+        fontWeight: 'Bold',
+    },
+    buttonTextPressed: {
+        color: '#F4CE14',
         fontWeight: 'Bold',
     },
     msgtext: {

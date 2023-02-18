@@ -188,7 +188,8 @@ const ProfileScreen = ({ navigation }) => {
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.buttong} title="Save changes" onPress={() => {
                     {saveData()};
-                    ToastAndroid.show('Profile saved!', ToastAndroid.CENTER, ToastAndroid.LONG)
+                    ToastAndroid.show('Profile saved!', ToastAndroid.TOP, ToastAndroid.LONG);
+                    navigation.navigate('MainScreen')
                 }}>
                     <Text style={styles.buttonTextw}>Save changes</Text>
                 </TouchableOpacity>
@@ -235,6 +236,7 @@ const styles = {
     input: {
         width: '100%',
         padding: 3,
+        paddingHorizontal:10,
         alignItems: 'center',
         alignSelf: 'flex-start',
         borderRadius: 10,
