@@ -28,3 +28,6 @@ fetch('https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-D
                     <Text style={styles.buttonText}>Save Menu</Text>
                 </TouchableOpacity>
             </View>
+
+
+'%' + props + '%',
