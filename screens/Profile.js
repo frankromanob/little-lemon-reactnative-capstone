@@ -43,17 +43,6 @@ const ProfileScreen = ({ navigation }) => {
     }, [])
 
 
-    let userProfile = {
-        pic: '',
-        firstname: '',
-        lastname: '',
-        phone: '',
-        order: false,
-        password: false,
-        offers: false,
-        news: false,
-    }
-
     clearData = async () => {
         try {
             await AsyncStorage.removeItem('userProfile');

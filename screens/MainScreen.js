@@ -101,12 +101,16 @@ const MainScreen = ({ navigation }) => {
 
     const searchMenu = (props) => {
         let queryflags = '';
-        if (startersflag) { queryflags += 'starters,' }
+        if (startersflag) { queryflags += "starters" }
+        if (mainsflag) { queryflags += "mains" }
+        if (drinksflag) { queryflags += "drinks" }
+        if (dessertsflag) { queryflags += "desserts" }
         db.transaction(tx => {
-            tx.executeSql('SELECT * FROM menu WHERE name like (?)',
-                ['%' + props + '%'], (tx, { rows: { _array } }) => {
-                    setMenuData({ menu: _array });
-                }, error => { console.log(error) });
+                tx.executeSql("SELECT * FROM menu WHERE name like (?) ",
+                    ['%'+props+'%'], (tx, { rows: { _array } }) => {
+                        setMenuData({ menu: _array });
+                    }, error => { console.log(error) });
+                    //console.log(queryflags);
         });
     }
 
@@ -138,29 +142,29 @@ const MainScreen = ({ navigation }) => {
             <View style={{ flexDirection: 'row', padding: 5 }}>
                     <TouchableOpacity style={!startersflag ? styles.button : styles.buttonPressed}
                         onPress={() => {
+                            searchMenu(buscar.text)
                             setStartersflag(!startersflag)
-                            searchMenu(buscar)
                         }}>
                         <Text style={!startersflag ? styles.buttonText : styles.buttonTextPressed}>Starters</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={!mainsflag ? styles.button : styles.buttonPressed} 
+                    <TouchableOpacity style={!mainsflag ? styles.button : styles.buttonPressed}
                         onPress={() => {
                             setMainsflag(!mainsflag)
-                            searchMenu(buscar)
+                            searchMenu(buscar.text)
                         }}>
                         <Text style={!mainsflag ? styles.buttonText : styles.buttonTextPressed}>Mains</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={!dessertsflag ? styles.button : styles.buttonPressed} 
+                    <TouchableOpacity style={!dessertsflag ? styles.button : styles.buttonPressed}
                         onPress={() => {
                             setDessertsflag(!dessertsflag)
-                            searchMenu(buscar)
+                            searchMenu(buscar.text)
                         }}>
                         <Text style={!dessertsflag ? styles.buttonText : styles.buttonTextPressed}>Desserts</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={!drinksflag ? styles.button : styles.buttonPressed} 
                         onPress={() => {
                             setDrinksflag(!drinksflag)
-                            searchMenu(buscar)
+                            searchMenu(buscar.text)
                         }}>
                         <Text style={!drinksflag ? styles.buttonText : styles.buttonTextPressed}>Drinks</Text>
                     </TouchableOpacity>
