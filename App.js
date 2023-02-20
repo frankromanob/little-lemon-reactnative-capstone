@@ -6,7 +6,7 @@ import ProfileScreen from './screens/Profile';
 import SplashScreen from './screens/SplashScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Image,TouchableHighlight } from 'react-native';
+import { Image,TouchableHighlight,StatusBar } from 'react-native';
 
 
 const Stack = createNativeStackNavigator();
@@ -55,6 +55,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
+      <StatusBar/>
       <Stack.Navigator
         screenOptions={({navigation}) =>({
           headerMode: 'screen',

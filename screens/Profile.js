@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, TextInput, Image, TouchableOpacity, View, ToastAndroid } from "react-native";
+import { Text, TextInput, Image, TouchableOpacity, TouchableHighlight, View, ToastAndroid } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CheckBox from 'expo-checkbox';
 import { MaskedTextInput } from "react-native-mask-text";
@@ -51,6 +51,7 @@ const ProfileScreen = ({ navigation }) => {
             console.log(error)
         }
     };
+
     retrieveData = async () => {
         try {
             const jsonProfile = await AsyncStorage.getItem('userProfile');
@@ -72,6 +73,19 @@ const ProfileScreen = ({ navigation }) => {
             // Error saving data
         }
     };
+
+    useEffect(()=>{
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableHighlight onPress={() => {navigation.navigate('Profile')}} >
+                    {profileState.pic ?
+                        <Image source={{ uri: profileState.pic }} resizeMode='contain' style={{alignSelf: 'flex-start', justifyContent: 'center', width: 50, height: 50, borderRadius: 50 }} /> :
+                        <Image source={require('../assets/profileicon.png')} resizeMode='contain' style={{ width: 50, height: 50, borderRadius: 50, alignSelf: 'flex-start', justifyContent: 'center' }} />
+                    }
+                </TouchableHighlight>
+            )
+        })
+    },[profileState])
 
     const [loaded] = useFonts({
         'Karla': require('../assets/fonts/Karla-Regular.ttf'),
