@@ -10,15 +10,14 @@ const MainScreen = ({ navigation }) => {
 
     const [menuData, setMenuData] = useState({ menu: [] });
 
-    const [buscar, setBuscar] = useState('');
+    const [buscar, setBuscar] = useState({ text: '' });
     const [startersflag, setStartersflag] = useState(false);
     const [mainsflag, setMainsflag] = useState(false);
     const [dessertsflag, setDessertsflag] = useState(false);
     const [drinksflag, setDrinksflag] = useState(false);
 
 
-    const fetchMenu = () => {
-
+    const fetchMenuFromDB = () => {
         return new Promise((resolve, reject) => {
             db.transaction(tx => {
                 tx.executeSql('CREATE TABLE IF NOT EXISTS menu('
@@ -35,7 +34,7 @@ const MainScreen = ({ navigation }) => {
         })
     }
 
-    const fetchMenuJ = async () => {
+    const fetchMenuFromJson = async () => {
         const response = await fetch('https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json')
         const dataM = await response.json()
         setMenuData({ menu: dataM.menu })
@@ -44,7 +43,7 @@ const MainScreen = ({ navigation }) => {
     };
 
     const insertMenu = (props) => {
-        console.log('[---insertando del json---]:', props.length)
+        //console.log('[---insertando del json---]:', props.length)
         db.transaction((tx) => {
             for (let i = 0; i < props.length; i++) {
                 tx.executeSql('insert into menu (name,price,description,category,image) values (?,?,?,?,?)', [props[i].name,
@@ -59,19 +58,51 @@ const MainScreen = ({ navigation }) => {
         })
     }
 
+    const searchMenu = (props) => {
+        return new Promise((resolve) => {
+            let queryflags = [];
+            if (startersflag) { queryflags.push("'starters'") }
+            if (mainsflag) { queryflags.push("'mains'") }
+            if (drinksflag) { queryflags.push("'drinks'") }
+            if (dessertsflag) { queryflags.push("'desserts'") }
+
+            if (queryflags.length === 0) queryflags = ["'starters'", "'mains'", "'desserts'", "'drinks'"];
+
+            if (!props) {
+                db.transaction(tx => {
+                    tx.executeSql(`SELECT * FROM menu WHERE category in (${queryflags}) `,
+                        [], (tx, { rows: { _array } }) => {
+                            resolve(_array);
+                        }, error => { console.log(error) })
+                })
+            } else {
+                db.transaction(tx => {
+                    tx.executeSql(`SELECT * FROM menu WHERE name like '%${props}%' and category in (${queryflags}) `,
+                        [], (tx, { rows:{_array} }) => {
+                            resolve(_array);
+                        }, error => { console.log(error) });
+                })
+            };
+        })
+    }
 
     useEffect(() => {
         //select data from local db
         (async () => {
             //  If no local data from db, fetch from json
-            if (await fetchMenu() === 0) {
-                fetchMenuJ();
+            if (await fetchMenuFromDB() === 0) {
+                fetchMenuFromJson();
             }
         })()
-
-
     }, []);
 
+     useEffect(() => {
+    //     //Filter menu from toogle buttons
+    (async () => {
+        const theMenu= await searchMenu(buscar.text)
+        setMenuData({ menu: theMenu })
+    })()
+    }, [buscar.text, startersflag, mainsflag, dessertsflag, drinksflag]);
 
     const [fontsLoaded] = useFonts({
         'Markazi': require('../assets/fonts/MarkaziText-Medium.ttf'),
@@ -83,35 +114,19 @@ const MainScreen = ({ navigation }) => {
     }
 
     /////---------for testing----
-
     const dropTable = () => {
         db.transaction((tx) => {
             tx.executeSql('DROP TABLE IF EXISTS menu', [])
         })
         console.log('----dropped the table----');
     }
-    /////////-------
+    /////--------
 
 
     if (menuData.length === 0) {
         ToastAndroid.show('No menu data', ToastAndroid.TOP, ToastAndroid.LONG);
         console.log('No menu data')
         return null;
-    }
-
-    const searchMenu = (props) => {
-        let queryflags = '';
-        if (startersflag) { queryflags += "starters" }
-        if (mainsflag) { queryflags += "mains" }
-        if (drinksflag) { queryflags += "drinks" }
-        if (dessertsflag) { queryflags += "desserts" }
-        db.transaction(tx => {
-                tx.executeSql("SELECT * FROM menu WHERE name like (?) ",
-                    ['%'+props+'%'], (tx, { rows: { _array } }) => {
-                        setMenuData({ menu: _array });
-                    }, error => { console.log(error) });
-                    //console.log(queryflags);
-        });
     }
 
 
@@ -133,42 +148,29 @@ const MainScreen = ({ navigation }) => {
                         placeholder="Search..."
                         onChangeText={(text) => {
                             setBuscar({ ...buscar, text })
-                            searchMenu(text)
                         }}
                         value={buscar}
                     />
                 </View>
             </View>
             <View style={{ flexDirection: 'row', padding: 5 }}>
-                    <TouchableOpacity style={!startersflag ? styles.button : styles.buttonPressed}
-                        onPress={() => {
-                            searchMenu(buscar.text)
-                            setStartersflag(!startersflag)
-                        }}>
-                        <Text style={!startersflag ? styles.buttonText : styles.buttonTextPressed}>Starters</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={!mainsflag ? styles.button : styles.buttonPressed}
-                        onPress={() => {
-                            setMainsflag(!mainsflag)
-                            searchMenu(buscar.text)
-                        }}>
-                        <Text style={!mainsflag ? styles.buttonText : styles.buttonTextPressed}>Mains</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={!dessertsflag ? styles.button : styles.buttonPressed}
-                        onPress={() => {
-                            setDessertsflag(!dessertsflag)
-                            searchMenu(buscar.text)
-                        }}>
-                        <Text style={!dessertsflag ? styles.buttonText : styles.buttonTextPressed}>Desserts</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={!drinksflag ? styles.button : styles.buttonPressed} 
-                        onPress={() => {
-                            setDrinksflag(!drinksflag)
-                            searchMenu(buscar.text)
-                        }}>
-                        <Text style={!drinksflag ? styles.buttonText : styles.buttonTextPressed}>Drinks</Text>
-                    </TouchableOpacity>
-                </View>
+                <TouchableOpacity style={!startersflag ? styles.button : styles.buttonPressed}
+                    onPress={() => { setStartersflag(!startersflag); }}>
+                    <Text style={!startersflag ? styles.buttonText : styles.buttonTextPressed}>Starters</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={!mainsflag ? styles.button : styles.buttonPressed}
+                    onPress={() => { setMainsflag(!mainsflag); }}>
+                    <Text style={!mainsflag ? styles.buttonText : styles.buttonTextPressed}>Mains</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={!dessertsflag ? styles.button : styles.buttonPressed}
+                    onPress={() => { setDessertsflag(!dessertsflag); }}>
+                    <Text style={!dessertsflag ? styles.buttonText : styles.buttonTextPressed}>Desserts</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={!drinksflag ? styles.button : styles.buttonPressed}
+                    onPress={() => { setDrinksflag(!drinksflag); }}>
+                    <Text style={!drinksflag ? styles.buttonText : styles.buttonTextPressed}>Drinks</Text>
+                </TouchableOpacity>
+            </View>
             <View style={styles.body}>
                 <Text style={styles.titleText}>Our Menu</Text>
                 <FlatList
@@ -206,13 +208,12 @@ const styles = {
         justifyContent: 'center',
     },
     header: {
-        flex:0.8,
+        flex: 0.8,
         width: '100%',
-        margintop: 5,
         backgroundColor: '#495E57'
     },
     body: {
-        flex:1,
+        flex: 1,
         width: '100%',
         backgroundColor: '#EDEFEE'
     },

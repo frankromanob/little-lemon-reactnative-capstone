@@ -31,3 +31,6 @@ fetch('https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-D
 
 
 '%' + props + '%',
+
+
+"expo-image-picker": "^14.1.0",

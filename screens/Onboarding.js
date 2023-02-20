@@ -19,7 +19,6 @@ const OnboardingScreen = ({navigation}) => {
 
     saveData = async () => {
         try {
-          console.log(JSON.stringify(profileState));
           await AsyncStorage.setItem('userProfile',JSON.stringify(profileState));
         } catch (error) {
           console.log(error);
@@ -28,6 +27,7 @@ const OnboardingScreen = ({navigation}) => {
 
     return (
         <View style={styles.container}>
+            <Image style={styles.img} source={require("../assets/lemon-29.png")} />
             <View style={styles.formContainer}>
                 <Text style={styles.msgtext}>Let us get to know you</Text>
                 <TextInput
@@ -45,6 +45,7 @@ const OnboardingScreen = ({navigation}) => {
                 <TextInput
                     style={styles.input}
                     placeholder="Email"
+                    keyboardType="email-address"
                     onChangeText={(text) => setProfileState({...profileState,email:text})}
                     value={profileState.email}
                 />
@@ -64,6 +65,13 @@ const styles = {
         backgroundColor: '#DDDDDD',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    img: {
+        height: '40%',
+        width: '80%',
+        alignItems: 'center',
+        justifyContent: 'center',
+
     },
     header: {
         flex: 0.1,

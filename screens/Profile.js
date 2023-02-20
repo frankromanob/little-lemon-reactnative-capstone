@@ -124,12 +124,14 @@ const ProfileScreen = ({ navigation }) => {
                 <Text style={styles.labels}>Email</Text>
                 <TextInput
                     style={styles.input}
+                    keyboardType="email-address"
                     onChangeText={(text) => setProfileState({ ...profileState, email: text })}
                     value={profileState.email}
                 />
                 <Text style={styles.labels}>Phone number</Text>
                 <MaskedTextInput
                     mask='(999)999-9999'
+                    keyboardType="phone-pad"
                     style={styles.input}
                     onChangeText={(text) => setProfileState({ ...profileState, phone: text })}
                     value={profileState.phone}
@@ -168,7 +170,7 @@ const ProfileScreen = ({ navigation }) => {
                 />
                 <Text style={styles.labels} >Newsletter</Text>
             </View>
-            <TouchableOpacity style={styles.buttony} title="Hola" onPress={() => { {clearData()}; setProfileState({}); navigation.popToTop(); }}>
+            <TouchableOpacity style={styles.buttony} title="Hola" onPress={() => { {clearData()}; setProfileState({}); navigation.navigate('OnboardingScreen'); }}>
                 <Text style={styles.buttonText}>Log out</Text>
             </TouchableOpacity>
             <View style={styles.footer}>
