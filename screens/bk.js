@@ -34,3 +34,12 @@ fetch('https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-D
 
 
 "expo-image-picker": "^14.1.0",
+
+const [loaded] = useFonts({
+    'Karla': require('../assets/fonts/Karla-Regular.ttf'),
+    'Markazi': require('../assets/fonts/MarkaziText-Regular.ttf'),
+});
+
+if (!loaded) {
+    return null;
+}

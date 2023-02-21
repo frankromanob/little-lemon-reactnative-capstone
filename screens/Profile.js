@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Text, TextInput, Image, TouchableOpacity, TouchableHighlight, View, ToastAndroid } from "react-native";
+import { Text, TextInput, Image, TouchableOpacity, TouchableHighlight, View, ToastAndroid, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CheckBox from 'expo-checkbox';
 import { MaskedTextInput } from "react-native-mask-text";
-import { useFonts } from 'expo-font';
 import * as ImagePicker from 'expo-image-picker';
 
 const ProfileScreen = ({ navigation }) => {
@@ -19,7 +18,7 @@ const ProfileScreen = ({ navigation }) => {
             quality: 1,
         });
 
-       // console.log(result);
+        // console.log(result);
         if (!result.canceled) {
             setImage(result.assets[0].uri);
             setProfileState({ ...profileState, pic: result.assets[0].uri })
@@ -55,7 +54,7 @@ const ProfileScreen = ({ navigation }) => {
     retrieveData = async () => {
         try {
             const jsonProfile = await AsyncStorage.getItem('userProfile');
-            const jsonValue= JSON.parse(jsonProfile);
+            const jsonValue = JSON.parse(jsonProfile);
             if (jsonValue !== null) {
                 setProfileState(jsonValue);
             }
@@ -74,132 +73,126 @@ const ProfileScreen = ({ navigation }) => {
         }
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         navigation.setOptions({
             headerRight: () => (
-                <TouchableHighlight onPress={() => {navigation.navigate('Profile')}} >
+                <TouchableHighlight onPress={() => { navigation.navigate('Profile') }} >
                     {profileState.pic ?
-                        <Image source={{ uri: profileState.pic }} resizeMode='contain' style={{alignSelf: 'flex-start', justifyContent: 'center', width: 50, height: 50, borderRadius: 50 }} /> :
+                        <Image source={{ uri: profileState.pic }} resizeMode='contain' style={{ alignSelf: 'flex-start', justifyContent: 'center', width: 50, height: 50, borderRadius: 50 }} /> :
                         <Image source={require('../assets/profileicon.png')} resizeMode='contain' style={{ width: 50, height: 50, borderRadius: 50, alignSelf: 'flex-start', justifyContent: 'center' }} />
                     }
                 </TouchableHighlight>
             )
         })
-    },[profileState])
+    }, [profileState])
 
-    const [loaded] = useFonts({
-        'Karla': require('../assets/fonts/Karla-Regular.ttf'),
-        'Markazi': require('../assets/fonts/MarkaziText-Regular.ttf'),
-    });
-
-    if (!loaded) {
-        return null;
-    }
 
 
     return (
-        <View style={styles.container}>
-            <View>
-                <Text style={styles.msgtext}>Personal information</Text>
-            </View>
-            <View style={styles.top}>
-                <View style={{flexDirection:'column', alignSelf:'center'}}>
-                <Text style={{alignSelf:'center',marginRight:20,fontSize:18,fontFamily:'Markazi'}}>Avatar</Text> 
-                    {profileState.pic ? <Image source={{ uri: profileState.pic }} resizeMode='contain' style={{marginRight:20,alignSelf: 'center', justifyContent: 'center', width: 90, height: 90, borderRadius: 50 }} /> :
-                        <Image
-                            style={{ marginRight:20, width: 90, height: 90, borderRadius: 50, alignSelf: 'center', justifyContent: 'center' }}
-                            source={require('../assets/profileicon.png')}
-                            resizeMode='contain' />
-                    }
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <View style={styles.container}>
+                <View>
+                    <Text style={styles.msgtext}>Personal information</Text>
+                </View>
+                <View style={styles.top}>
+                    <View style={{ flexDirection: 'column', alignSelf: 'center' }}>
+                        <Text style={{ alignSelf: 'center', marginRight: 20, fontSize: 18, fontFamily: 'Markazi' }}>Avatar</Text>
+                        {profileState.pic ? <Image source={{ uri: profileState.pic }} resizeMode='contain' style={{ marginRight: 20, alignSelf: 'center', justifyContent: 'center', width: 90, height: 90, borderRadius: 50 }} /> :
+                            <Image
+                                style={{ marginRight: 20, width: 90, height: 90, borderRadius: 50, alignSelf: 'center', justifyContent: 'center' }}
+                                source={require('../assets/profileicon.png')}
+                                resizeMode='contain' />
+                        }
                     </View>
                     <View style={styles.avatar}>
-                    <TouchableOpacity style={styles.buttongtop} title="Change avatar" onPress={pickImage}>
-                        <Text style={styles.buttonTextw}>Change</Text>
+                        <TouchableOpacity style={styles.buttongtop} title="Change avatar" onPress={pickImage}>
+                            <Text style={styles.buttonTextw}>Change</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.buttonwtop} title="Remove avatar" onPress={() => { setProfileState({ ...profileState, pic: false }); }}>
+                            <Text style={styles.buttonText}>Remove</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                <View style={styles.fields}>
+                    <Text style={styles.labels}>First Name</Text>
+                    <TextInput
+                        style={styles.input}
+                        onChangeText={(text) => setProfileState({ ...profileState, firstName: text })}
+                        value={profileState.firstName}
+                    />
+                    <Text style={styles.labels}>Last Name</Text>
+                    <TextInput
+                        style={styles.input}
+                        onChangeText={(text) => setProfileState({ ...profileState, lastName: text })}
+                        value={profileState.lastName}
+                    />
+                    <Text style={styles.labels}>Email</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="email-address"
+                        onChangeText={(text) => setProfileState({ ...profileState, email: text })}
+                        value={profileState.email}
+                    />
+                    <Text style={styles.labels}>Phone number</Text>
+                    <MaskedTextInput
+                        mask='(999)999-9999'
+                        keyboardType="phone-pad"
+                        style={styles.input}
+                        onChangeText={(text) => setProfileState({ ...profileState, phone: text })}
+                        value={profileState.phone}
+                    />
+                </View>
+                <Text style={styles.msgtext}>Email notifications</Text>
+                <View style={styles.noti}>
+                    <CheckBox
+                        value={profileState.orderNoti}
+                        onValueChange={(newValue) => setProfileState({ ...profileState, orderNoti: newValue })}
+                        color={profileState.orderNoti ? '#495E57' : '#333333'}
+                    />
+                    <Text style={styles.labels} >Order status</Text>
+                </View>
+                <View style={styles.noti}>
+                    <CheckBox
+                        value={profileState.passwordNoti}
+                        onValueChange={(newValue) => setProfileState({ ...profileState, passwordNoti: newValue })}
+                        color={profileState.passwordNoti ? '#495E57' : '#333333'}
+                    />
+                    <Text style={styles.labels} >Password changes</Text>
+                </View>
+                <View style={styles.noti}>
+                    <CheckBox
+                        value={profileState.offersNoti}
+                        onValueChange={(newValue) => setProfileState({ ...profileState, offersNoti: newValue })}
+                        color={profileState.offersNoti ? '#495E57' : '#333333'}
+                    />
+                    <Text style={styles.labels} >Special offers</Text>
+                </View>
+                <View style={styles.noti}>
+                    <CheckBox
+                        value={profileState.newsNoti}
+                        onValueChange={(newValue) => setProfileState({ ...profileState, newsNoti: newValue })}
+                        color={profileState.newsNoti ? '#495E57' : '#333333'}
+                    />
+                    <Text style={styles.labels} >Newsletter</Text>
+                </View>
+                <TouchableOpacity style={styles.buttony} title="Hola" onPress={() => { { clearData() }; setProfileState({}); navigation.navigate('OnboardingScreen'); }}>
+                    <Text style={styles.buttonText}>Log out</Text>
+                </TouchableOpacity>
+                <View style={styles.footer}>
+                    <TouchableOpacity style={styles.buttonw} title="Discard changes" onPress={() => { navigation.goBack() }}>
+                        <Text style={styles.buttonText}>Discard changes</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.buttonwtop} title="Remove avatar" onPress={() => { setProfileState({ ...profileState, pic: false }); }}>
-                        <Text style={styles.buttonText}>Remove</Text>
+                    <TouchableOpacity style={styles.buttong} title="Save changes" onPress={() => {
+                        { saveData() };
+                        ToastAndroid.show('Profile saved!', ToastAndroid.TOP, ToastAndroid.LONG);
+                        navigation.navigate('MainScreen')
+                    }}>
+                        <Text style={styles.buttonTextw}>Save changes</Text>
                     </TouchableOpacity>
                 </View>
             </View>
-
-            <View style={styles.fields}>
-                <Text style={styles.labels}>First Name</Text>
-                <TextInput
-                    style={styles.input}
-                    onChangeText={(text) => setProfileState({ ...profileState, firstName: text })}
-                    value={profileState.firstName}
-                />
-                <Text style={styles.labels}>Last Name</Text>
-                <TextInput
-                    style={styles.input}
-                    onChangeText={(text) => setProfileState({ ...profileState, lastName: text })}
-                    value={profileState.lastName}
-                />
-                <Text style={styles.labels}>Email</Text>
-                <TextInput
-                    style={styles.input}
-                    keyboardType="email-address"
-                    onChangeText={(text) => setProfileState({ ...profileState, email: text })}
-                    value={profileState.email}
-                />
-                <Text style={styles.labels}>Phone number</Text>
-                <MaskedTextInput
-                    mask='(999)999-9999'
-                    keyboardType="phone-pad"
-                    style={styles.input}
-                    onChangeText={(text) => setProfileState({ ...profileState, phone: text })}
-                    value={profileState.phone}
-                />
-            </View>
-            <Text style={styles.msgtext}>Email notifications</Text>
-            <View style={styles.noti}>
-                <CheckBox
-                    value={profileState.orderNoti}
-                    onValueChange={(newValue) => setProfileState({ ...profileState, orderNoti: newValue })}
-                    color={profileState.orderNoti ? '#495E57' : '#333333'}
-                />
-                <Text style={styles.labels} >Order status</Text>
-            </View>
-            <View style={styles.noti}>
-                <CheckBox
-                    value={profileState.passwordNoti}
-                    onValueChange={(newValue) => setProfileState({ ...profileState, passwordNoti: newValue })}
-                    color={profileState.passwordNoti ? '#495E57' : '#333333'}
-                />
-                <Text style={styles.labels} >Password changes</Text>
-            </View>
-            <View style={styles.noti}>
-                <CheckBox
-                    value={profileState.offersNoti}
-                    onValueChange={(newValue) => setProfileState({ ...profileState, offersNoti: newValue })}
-                    color={profileState.offersNoti ? '#495E57' : '#333333'}
-                />
-                <Text style={styles.labels} >Special offers</Text>
-            </View>
-            <View style={styles.noti}>
-                <CheckBox
-                    value={profileState.newsNoti}
-                    onValueChange={(newValue) => setProfileState({ ...profileState, newsNoti: newValue })}
-                    color={profileState.newsNoti ? '#495E57' : '#333333'}
-                />
-                <Text style={styles.labels} >Newsletter</Text>
-            </View>
-            <TouchableOpacity style={styles.buttony} title="Hola" onPress={() => { {clearData()}; setProfileState({}); navigation.navigate('OnboardingScreen'); }}>
-                <Text style={styles.buttonText}>Log out</Text>
-            </TouchableOpacity>
-            <View style={styles.footer}>
-                <TouchableOpacity style={styles.buttonw} title="Discard changes" onPress={() => { navigation.goBack() }}>
-                    <Text style={styles.buttonText}>Discard changes</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.buttong} title="Save changes" onPress={() => {
-                    {saveData()};
-                    ToastAndroid.show('Profile saved!', ToastAndroid.TOP, ToastAndroid.LONG);
-                    navigation.navigate('MainScreen')
-                }}>
-                    <Text style={styles.buttonTextw}>Save changes</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
+        </TouchableWithoutFeedback>
     );
 };
 
@@ -221,13 +214,13 @@ const styles = {
         margin: 10,
         flexDirection: 'row',
         fontFamily: 'Karla',
-        marginHorizontal:10
+        marginHorizontal: 10
     },
     top: {
-        marginBottom:20,
+        marginBottom: 20,
         fontFamily: 'Markazi',
         paddingHorizontal: 30,
-        textAlign:'center',
+        textAlign: 'center',
         height: 80,
         width: '100%',
         marginLeft: 10,
@@ -236,27 +229,27 @@ const styles = {
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginHorizontal: 20,
-        minWidth:'50%',
+        minWidth: '50%',
     },
     input: {
         width: '100%',
         padding: 3,
-        paddingHorizontal:10,
+        paddingHorizontal: 10,
         alignItems: 'center',
         alignSelf: 'flex-start',
         borderRadius: 10,
         borderColor: '#333333',
         borderWidth: 1,
         fontSize: 14,
-        fontFamily:'Karla'
+        fontFamily: 'Karla'
     },
     labels: {
         fontSize: 18,
         alignSelf: 'flex-start',
         color: '#333333',
         fontFamily: 'Markazi',
-        fontWeight:'Bold',
-        paddingHorizontal:5
+        fontWeight: 'Bold',
+        paddingHorizontal: 5
     },
     checks: {
         color: '#495E57',
@@ -276,7 +269,7 @@ const styles = {
         paddingBottom: 8,
         flexDirection: 'row',
         justifyContent: 'flex-end',
-        alignSelf:'center',
+        alignSelf: 'center',
     },
 
     buttony: {
@@ -294,7 +287,7 @@ const styles = {
         width: '40%',
         borderRadius: 10,
         borderWidth: 1,
-        marginHorizontal:10,
+        marginHorizontal: 10,
         backgroundColor: '#495E57',
         alignSelf: 'center',
         alignItems: 'center',
@@ -319,14 +312,14 @@ const styles = {
         alignSelf: 'center',
         alignItems: 'center',
         justifyContent: 'center',
-        marginHorizontal:3,
+        marginHorizontal: 3,
     },
     buttonwtop: {
         height: 40,
         width: 100,
         borderRadius: 10,
         borderWidth: 1,
-        marginHorizontal:3,
+        marginHorizontal: 3,
         backgroundColor: '#EDEFEE',
         alignSelf: 'center',
         alignItems: 'center',
@@ -349,7 +342,7 @@ const styles = {
         fontSize: 24,
         fontWeight: 'Bold',
         fontFamily: 'Markazi',
-        paddingHorizontal:10
+        paddingHorizontal: 10
     },
 };
 

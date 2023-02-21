@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { TextInput, Text, TouchableOpacity, View, Image, FlatList, ToastAndroid } from "react-native";
-import { useFonts } from 'expo-font';
 import * as SQLite from 'expo-sqlite';
 
 const db = SQLite.openDatabase('little_lemon');
-
 
 const MainScreen = ({ navigation }) => {
 
@@ -78,7 +76,7 @@ const MainScreen = ({ navigation }) => {
             } else {
                 db.transaction(tx => {
                     tx.executeSql(`SELECT * FROM menu WHERE name like '%${props}%' and category in (${queryflags}) `,
-                        [], (tx, { rows:{_array} }) => {
+                        [], (tx, { rows: { _array } }) => {
                             resolve(_array);
                         }, error => { console.log(error) });
                 })
@@ -96,22 +94,13 @@ const MainScreen = ({ navigation }) => {
         })()
     }, []);
 
-     useEffect(() => {
-    //     //Filter menu from toogle buttons
-    (async () => {
-        const theMenu= await searchMenu(buscar.text)
-        setMenuData({ menu: theMenu })
-    })()
+    useEffect(() => {
+        //     //Filter menu from toogle buttons
+        (async () => {
+            const theMenu = await searchMenu(buscar.text)
+            setMenuData({ menu: theMenu })
+        })()
     }, [buscar.text, startersflag, mainsflag, dessertsflag, drinksflag]);
-
-    const [fontsLoaded] = useFonts({
-        'Markazi': require('../assets/fonts/MarkaziText-Medium.ttf'),
-        'Karla': require('../assets/fonts/Karla-Regular.ttf'),
-    });
-
-    if (!fontsLoaded) {
-        return null;
-    }
 
     /////---------for testing----
     const dropTable = () => {

@@ -1,8 +1,18 @@
 import React from 'react';
 import { View, Image } from "react-native";
+import { useFonts } from 'expo-font';
 
 
 const SplashScreen = () => {
+    const [fontsLoaded] = useFonts({
+        'Markazi': require('../assets/fonts/MarkaziText-Medium.ttf'),
+        'Karla': require('../assets/fonts/Karla-Regular.ttf'),
+      });
+
+      if (!fontsLoaded) {
+          return null;
+      }
+
     return (
         <View style={styles.container}>
             <Image style={styles.img} source={require("../assets/lemon-29.png")} />
