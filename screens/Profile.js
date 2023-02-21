@@ -78,7 +78,7 @@ const ProfileScreen = ({ navigation }) => {
             headerRight: () => (
                 <TouchableHighlight onPress={() => { navigation.navigate('Profile') }} >
                     {profileState.pic ?
-                        <Image source={{ uri: profileState.pic }} resizeMode='contain' style={{ alignSelf: 'flex-start', justifyContent: 'center', width: 50, height: 50, borderRadius: 50 }} /> :
+                        <Image source={{ uri: profileState.pic }} resizeMode='cover' style={{ alignSelf: 'flex-start', justifyContent: 'center', width: 50, height: 50, borderRadius: 50 }} /> :
                         <Image source={require('../assets/profileicon.png')} resizeMode='contain' style={{ width: 50, height: 50, borderRadius: 50, alignSelf: 'flex-start', justifyContent: 'center' }} />
                     }
                 </TouchableHighlight>
@@ -97,7 +97,7 @@ const ProfileScreen = ({ navigation }) => {
                 <View style={styles.top}>
                     <View style={{ flexDirection: 'column', alignSelf: 'center' }}>
                         <Text style={{ alignSelf: 'center', marginRight: 20, fontSize: 18, fontFamily: 'Markazi' }}>Avatar</Text>
-                        {profileState.pic ? <Image source={{ uri: profileState.pic }} resizeMode='contain' style={{ marginRight: 20, alignSelf: 'center', justifyContent: 'center', width: 90, height: 90, borderRadius: 50 }} /> :
+                        {profileState.pic ? <Image source={{ uri: profileState.pic }} resizeMode='cover' style={{ marginRight: 20, alignSelf: 'center', justifyContent: 'center', width: 90, height: 90, borderRadius: 50 }} /> :
                             <Image
                                 style={{ marginRight: 20, width: 90, height: 90, borderRadius: 50, alignSelf: 'center', justifyContent: 'center' }}
                                 source={require('../assets/profileicon.png')}
