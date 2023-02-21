@@ -77,7 +77,7 @@ export default function App() {
             headerRight: (props) => (
               <TouchableHighlight onPress={() => { navigation.navigate('Profile') }} >
                 {profileState.pic ?
-                  <Image source={{ uri: profileState.pic }} resizeMode='contain' style={{ alignSelf: 'flex-start', justifyContent: 'center', width: 50, height: 50, borderRadius: 50 }} /> :
+                  <Image source={{ uri: profileState.pic }} resizeMode='cover' style={{ alignSelf: 'flex-start', justifyContent: 'center', width: 50, height: 50, borderRadius: 50 }} /> :
                   <Image source={require('./assets/profileicon.png')} resizeMode='contain' style={{ width: 50, height: 50, borderRadius: 50, alignSelf: 'flex-start', justifyContent: 'center' }} />
                 }
               </TouchableHighlight>
